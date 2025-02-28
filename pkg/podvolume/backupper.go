@@ -196,11 +196,13 @@ func (b *backupper) getMatchAction(resPolicies *resourcepolicies.Policies, pvc *
 		if err != nil {
 			return nil, errors.Wrapf(err, "error getting pv for pvc %s", pvc.Spec.VolumeName)
 		}
-		return resPolicies.GetMatchAction(pv)
+		vfd := resourcepolicies.NewVolumeFilterData(pv, nil, pvc)
+		return resPolicies.GetMatchAction(vfd)
 	}
 
 	if volume != nil {
-		return resPolicies.GetMatchAction(volume)
+		vfd := resourcepolicies.NewVolumeFilterData(nil, volume, pvc)
+		return resPolicies.GetMatchAction(vfd)
 	}
 
 	return nil, errors.Errorf("failed to check resource policies for empty volume")
@@ -385,13 +387,19 @@ func (b *backupper) WaitAllPodVolumesProcessed(log logrus.FieldLogger) []*velero
 		}
 	}()
 
+	var podVolumeBackups []*velerov1api.PodVolumeBackup
+	// if no pod volume backups are tracked, return directly to avoid issue mentioned in
+	// https://github.com/vmware-tanzu/velero/issues/8723
+	if len(b.pvbIndexer.List()) == 0 {
+		return podVolumeBackups
+	}
+
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
 		b.wg.Wait()
 	}()
 
-	var podVolumeBackups []*velerov1api.PodVolumeBackup
 	select {
 	case <-b.ctx.Done():
 		log.Error("timed out waiting for all PodVolumeBackups to complete")
