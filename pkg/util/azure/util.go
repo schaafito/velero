@@ -29,6 +29,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 	"sigs.k8s.io/cloud-provider-azure/pkg/azclient"
@@ -129,7 +130,14 @@ func GetClientOptions(locationCfg, creds map[string]string) (policy.ClientOption
 	}
 
 	if locationCfg["apiVersion"] != "" {
-		options.APIVersion = locationCfg["apiVersion"]
+		// https://github.com/Azure/azure-sdk-for-go/issues/24303
+		options.PerCallPolicies = []policy.Policy{
+			&apiVersionPolicy{
+				location: runtime.APIVersionLocationHeader,
+				name: "x-ms-version",
+				version: locationCfg["apiVersion"],
+			},
+		}
 	}
 
 	return options, nil

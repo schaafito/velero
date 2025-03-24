@@ -27,6 +27,7 @@ import (
 	"testing"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud"
+	azruntime "github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"sigs.k8s.io/cloud-provider-azure/pkg/azclient"
@@ -107,7 +108,11 @@ func TestGetClientOptions(t *testing.T) {
 	options, err = GetClientOptions(bslCfg, creds)
 	require.NoError(t, err)
 	assert.Equal(t, options.Cloud, cloud.AzurePublic)
-	assert.Equal(t, "2020-test", options.APIVersion)
+	assert.Equal(t, &apiVersionPolicy{
+		location: azruntime.APIVersionLocationHeader,
+		name: "x-ms-version",
+		version: "2020-test",
+	}, options.PerCallPolicies[0])
 
 	// doesn't specify apiVesion
 	bslCfg = map[string]string{
@@ -117,7 +122,7 @@ func TestGetClientOptions(t *testing.T) {
 	options, err = GetClientOptions(bslCfg, creds)
 	require.NoError(t, err)
 	assert.Equal(t, options.Cloud, cloud.AzurePublic)
-	assert.Equal(t, "", options.APIVersion)
+	assert.Nil(t, options.PerCallPolicies)
 }
 
 func Test_getCloudConfiguration(t *testing.T) {
