@@ -134,8 +134,8 @@ func GetClientOptions(locationCfg, creds map[string]string) (policy.ClientOption
 		// https://github.com/Azure/azure-sdk-for-go/issues/24303
 		options.PerCallPolicies = []policy.Policy{
 			&apiVersionPolicy{
-				location: runtime.APIVersionLocationHeader,
-				name:     "x-ms-version",
+				location: runtime.APIVersionLocationQueryParam,
+				name:     "api-version",
 				version:  locationCfg["apiVersion"],
 			},
 		}
