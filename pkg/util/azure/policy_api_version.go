@@ -27,8 +27,8 @@ import (
 // https://github.com/Azure/azure-sdk-for-go/blob/main/sdk/azcore/runtime/policy_api_version.go
 type apiVersionPolicy struct {
 	location runtime.APIVersionLocation
-	name string
-	version string
+	name     string
+	version  string
 }
 
 func (a *apiVersionPolicy) Do(req *policy.Request) (*http.Response, error) {

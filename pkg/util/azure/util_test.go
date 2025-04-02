@@ -110,8 +110,8 @@ func TestGetClientOptions(t *testing.T) {
 	assert.Equal(t, options.Cloud, cloud.AzurePublic)
 	assert.Equal(t, &apiVersionPolicy{
 		location: azruntime.APIVersionLocationHeader,
-		name: "x-ms-version",
-		version: "2020-test",
+		name:     "x-ms-version",
+		version:  "2020-test",
 	}, options.PerCallPolicies[0])
 
 	// doesn't specify apiVesion

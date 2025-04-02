@@ -52,6 +52,7 @@ const (
 	CredentialKeyUsername                   = "AZURE_USERNAME"                      // #nosec
 	CredentialKeyPassword                   = "AZURE_PASSWORD"                      // #nosec
 	CredentialKeyResourceManagerEndpoint    = "AZURE_RESOURCE_MANAGER_ENDPOINT"     // #nosec
+	CredentialKeyApiVersion                 = "apiVersion"                          // #nosec
 	credentialFile                          = "credentialsFile"
 )
 
@@ -134,8 +135,8 @@ func GetClientOptions(locationCfg, creds map[string]string) (policy.ClientOption
 		options.PerCallPolicies = []policy.Policy{
 			&apiVersionPolicy{
 				location: runtime.APIVersionLocationHeader,
-				name: "x-ms-version",
-				version: locationCfg["apiVersion"],
+				name:     "x-ms-version",
+				version:  locationCfg["apiVersion"],
 			},
 		}
 	}
